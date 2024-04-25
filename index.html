@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>replit</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    type="text/css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Restaurant Data</h1>
+    <h2>Get Restaurants</h2>
+    <button id="getRestaurant" class="btn btn-primary">Get Restaurants</button><br><br>
+    <div id="listGetRestaurant" class="row"> </div>
+    <div id="getRequestContainer"></div>
+
+    <h2>Add Restaurant</h2>
+    <form id="restaurantForm">
+      <label for="name">Name:</label><br>
+      <input type="text" id="name" class="form-control" /><br>
+      <label for="cuisine">Cuisine:</label><br>
+      <input type="text" id="cuisine" class="form-control" /><br>
+      <label for="address">Address:</label><br>
+      <input type="text" id="address" class="form-control" /><br>
+      <label for="city">City:</label><br>
+      <input type="text" id="city" class="form-control" /><br>
+      <label for="rating">Rating:</label><br>
+      <input type="number" id="rating" class="form-control" /><br>
+      <label for="picture">Restaurant Picture:</label><br>
+      <input type="url" id="picture" class="form-control" /><br>
+      <button class="btn btn-success">Add Restaurant</button><br>
+    </form>
+    <div id="responseContainer"></div>
+  </div>
+
+  <script>
+    const restaurantForm = document.querySelector("#restaurantForm")
+    const name = document.querySelector("#name")
+    const cuisine = document.querySelector("#cuisine")
+    const address = document.querySelector("#address")
+    const city = document.querySelector("#city")
+    const rating = document.querySelector("#rating")
+    const picture = document.querySelector("#picture")
+    const responseContainer = document.querySelector("#responseContainer")
+    const getRestaurant = document.querySelector("#getRestaurant")
+    const listGetRestaurant = document.querySelector("#listGetRestaurant")
+    const getRequestContainer = document.querySelector("#getRequestContainer")
+    const apiUrl = "https://zomato-express-student-neog.replit.app/restaurants"
+
+    getRestaurant.addEventListener("click", function () {
+      listGetRestaurant.innerHTML = ''
+      fetch(apiUrl).then(function (response) {
+        return response.json()
+      }).then(function (data) {
+        if (data) {
+          for (let i = 0; i < data.length; i++) {
+            const liElements = document.createElement('div')
+            liElements.innerHTML = ''
+
+            const col = document.createElement('div')
+            col.className = 'col-md-4'
+
+            const card = document.createElement('div')
+            card.className = 'card  mb-2'
+
+            const img = document.createElement('img')
+            img.src = data[i].restaurantPicture
+            img.className = 'card-img-top'
+            img.alt = data[i].name
+
+            const cardBody = document.createElement('div')
+            cardBody.className = 'card-body'
+
+            const h4 = document.createElement('h4')
+            h4.className = 'card-title'
+            h4.textContent = `${data[i].name}`
+
+            cardBody.appendChild(h4)
+
+            const cuisineName = document.createElement('p')
+            cuisineName.className = 'card-text'
+            cuisineName.innerHTML = `<strong>Cuisine: </strong>${data[i].cuisine}`
+
+            const restaurantAddress = document.createElement('p')
+            restaurantAddress.className = 'card-text'
+            restaurantAddress.innerHTML = `<strong>Address: </strong>${data[i].address}`
+
+            const restaurantRating = document.createElement('p')
+            restaurantRating.className = 'card-text'
+            restaurantRating.innerHTML = `<strong>Rating: </strong>${data[i].rating}`
+
+            cardBody.appendChild(cuisineName)
+            cardBody.appendChild(restaurantAddress)
+            cardBody.appendChild(restaurantRating)
+
+            card.appendChild(img)
+            card.appendChild(cardBody)
+
+
+            col.appendChild(card)
+
+
+            listGetRestaurant.appendChild(col)
+          }
+        } else {
+          getRequestContainer.textContent = "Failed to fetch GET restaurant."
+        }
+      }).catch(function (error) {
+        getRequestContainer.textContent = "An error occured while getting the restuarant."
+      })
+    })
+
+    restaurantForm.addEventListener("submit", function (event) {
+      event.preventDefault()
+      const postRequestData = {
+        name: name.value,
+        cuisine: cuisine.value,
+        address: address.value,
+        city: city.value,
+        rating: rating.value,
+        restaurantPicture: picture.value
+      }
+
+      fetch(apiUrl, {
+        method: "POST",
+        body: JSON.stringify(postRequestData),
+        headers: {
+          'content-Type': 'application/json'
+        }
+      }).then(function (response) {
+        return response.json()
+      }).then(function (data) {
+        if (data) {
+          responseContainer.textContent = "Restaurant added successfully."
+          restaurantForm.reset()
+        } else {
+          responseContainer.textContent = 'Failes to make the POST restaurant.'
+        }
+      }).catch(function (error) {
+        responseContainer.textContent = 'An error occured while making the POST restaurant.'
+      })
+    })
+  </script>
+</body>
+
+</html>
